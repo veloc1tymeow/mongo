@@ -1,40 +1,18 @@
 const mongoose = require("mongoose");
-const userModel = require("./user");
-const categoryModel = require("./category");
 
-const gameSchema = new mongoose.Schema({
-  title: {
+const userSchema = new mongoose.Schema({
+  username: {
     type: String,
     required: true,
   },
-  description: {
+  email: {
     type: String,
     required: true,
   },
-  developer: {
+  password: {
     type: String,
     required: true,
   },
-  image: {
-    type: String,
-    required: true,
-  },
-  link: {
-    type: String,
-    required: true,
-  },
-  users: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: userModel,
-    },
-  ],
-  categories: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: categoryModel,
-    },
-  ],
 });
 
-module.exports = mongoose.model("game", gameSchema);
+module.exports = mongoose.model("user", userSchema);
