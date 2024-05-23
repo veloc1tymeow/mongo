@@ -1,13 +1,20 @@
 const games = require("../models/game");
 
 const findAllGames = async (req, res, next) => {
-  console.log("GET /games");
+  if (req.query["categories.name"]) {
+    req.gamesArray = await games.findGameByCategory(
+      req.query["categories.name"]
+    );
+    next();
+    return;
+  }
   req.gamesArray = await games.find({}).populate("categories").populate({
     path: "users",
     select: "-password",
   });
   next();
 };
+
 const createGame = async (req, res, next) => {
   console.log("POST /games");
   try {
@@ -92,6 +99,27 @@ const checkIfUsersAreSafe = async (req, res, next) => {
     );
   }
 };
+const checkIsGameExists = async (req, res, next) => {
+  const isInArray = req.gamesArray.find((game) => {
+    return req.body.title === game.title;
+  });
+  if (isInArray) {
+    res.setHeader("Content-Type", "application/json");
+    res
+      .status(400)
+      .send(
+        JSON.stringify({ message: "Игра с таким названием уже существует" })
+      );
+  } else {
+    next();
+  }
+};
+const checkIsVoteRequest = async (req, res, next) => {
+  if (Object.keys(req.body).length === 1 && req.body.users) {
+    req.isVoteRequest = true;
+  }
+  next();
+};
 
 module.exports = {
   findAllGames,
@@ -102,4 +130,6 @@ module.exports = {
   checkEmptyFields,
   checkIfCategoriesAvaliable,
   checkIfUsersAreSafe,
+  checkIsGameExists,
+  checkIsVoteRequest,
 };
